@@ -4,21 +4,66 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-800 antialiased;
+    @apply text-slate-800 antialiased min-h-screen;
+    background: #0f172a;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 10% -20%, rgba(99, 102, 241, 0.35), transparent),
+      radial-gradient(ellipse 60% 40% at 90% 0%, rgba(168, 85, 247, 0.25), transparent),
+      radial-gradient(ellipse 50% 30% at 50% 100%, rgba(14, 165, 233, 0.15), transparent);
+    background-attachment: fixed;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors;
+    @apply px-4 py-2.5 rounded-xl font-medium text-white
+      bg-gradient-to-r from-indigo-500 to-violet-500
+      hover:from-indigo-400 hover:to-violet-400
+      shadow-lg shadow-indigo-500/25
+      transition-all duration-200 active:scale-[0.98];
   }
+
   .btn-danger {
-    @apply px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors;
+    @apply px-4 py-2.5 rounded-xl font-medium text-white
+      bg-gradient-to-r from-rose-500 to-red-500
+      hover:from-rose-400 hover:to-red-400
+      shadow-lg shadow-rose-500/20
+      transition-all duration-200 active:scale-[0.98];
   }
+
+  .btn-ghost {
+    @apply px-4 py-2.5 rounded-xl font-medium text-slate-300
+      border border-white/10 bg-white/5
+      hover:bg-white/10 hover:text-white
+      transition-all duration-200;
+  }
+
   .input-field {
-    @apply w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none;
+    @apply w-full px-4 py-2.5 rounded-xl outline-none
+      bg-slate-900/60 border border-white/10 text-slate-100
+      placeholder:text-slate-500
+      focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-400/50
+      transition-all duration-200;
   }
+
   .card {
-    @apply bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow;
+    @apply rounded-2xl border border-white/10
+      bg-white/5 backdrop-blur-xl
+      shadow-xl shadow-black/20
+      transition-all duration-300;
+  }
+
+  .glass-panel {
+    @apply rounded-2xl border border-white/10
+      bg-slate-900/40 backdrop-blur-xl;
+  }
+
+  .stat-card {
+    @apply card p-5 relative overflow-hidden;
+  }
+
+  .stat-card::after {
+    content: '';
+    @apply absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-20 blur-2xl;
   }
 }
