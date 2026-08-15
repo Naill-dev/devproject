@@ -1,67 +1,78 @@
-import React from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Register() {
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
   const [errors, setErrors] = useState({});
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const validate = () => {
-    const err = {};
-    if (!formData.name.trim()) err.name = 'Ad tələb olunur';
-    if (!formData.email.includes('@')) err.email = 'Düzgün email daxil edin';
-    if (formData.password.length < 6) err.password = 'Şifrə ən az 6 simvol olmalıdır';
-    if (formData.password !== formData.confirmPassword) err.confirmPassword = 'Şifrələr uyğun gəlmir';
-    setErrors(err);
-    return Object.keys(err).length === 0;
+    const e = {};
+    if (!form.name.trim()) e.name = 'Ad tələb olunur';
+    if (!form.email.trim()) e.email = 'Email tələb olunur';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email formatı yanlışdır';
+    if (!form.password || form.password.length < 6) e.password = 'Minimum 6 simvol';
+    if (form.password !== form.confirmPassword) e.confirmPassword = 'Şifrələr eyni deyil';
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (ev) => {
+    ev.preventDefault();
     if (!validate()) return;
-    // Demo: qeydiyyatdan sonra avtomatik login et
     try {
-      await login(formData.email, formData.password);
+      await login(form.email, form.password);
       navigate('/');
     } catch {
-      alert('Qeydiyyat uğursuz oldu, lakin siz demo hesabla daxil ola bilərsiniz.');
+      setErrors({
+        form: 'Qeydiyyat demo rejimindədir. Mövcud demo hesabla daxil olun.',
+      });
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-white to-purple-100 p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-indigo-700 mb-6">Qeydiyyat</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium">Ad</label>
-            <input type="text" className="input-field" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+    <div className="w-full max-w-md card p-8">
+      <h1 className="text-3xl font-bold text-center text-indigo-300 mb-6">Qeydiyyat</h1>
+      {errors.form && (
+        <p className="text-amber-300 text-sm mb-3 bg-amber-500/10 p-3 rounded-xl">{errors.form}</p>
+      )}
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        {[
+          { key: 'name', label: 'Ad', type: 'text' },
+          { key: 'email', label: 'Email', type: 'email' },
+          { key: 'password', label: 'Şifrə', type: 'password' },
+          { key: 'confirmPassword', label: 'Şifrə təkrar', type: 'password' },
+        ].map((f) => (
+          <div key={f.key}>
+            <label className="block text-sm text-slate-300 mb-1">{f.label}</label>
+            <input
+              type={f.type}
+              className="input-field"
+              value={form[f.key]}
+              onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
+            />
+            {errors[f.key] && (
+              <p className="text-rose-400 text-sm mt-1">{errors[f.key]}</p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Email</label>
-            <input type="email" className="input-field" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Şifrə</label>
-            <input type="password" className="input-field" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
-            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Şifrə təkrar</label>
-            <input type="password" className="input-field" value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} />
-            {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
-          </div>
-          <button type="submit" className="w-full btn-primary py-3 text-lg">Qeydiyyat</button>
-        </form>
-        <p className="text-center text-sm text-slate-500 mt-4">
-          Hesabın var? <Link to="/login" className="text-indigo-600 hover:underline">Daxil ol</Link>
-        </p>
-      </div>
+        ))}
+        <button type="submit" className="btn-primary w-full">
+          Qeydiyyat
+        </button>
+      </form>
+      <p className="text-center text-sm text-slate-500 mt-4">
+        Hesabın var?{' '}
+        <Link to="/login" className="text-indigo-300 hover:underline">
+          Daxil ol
+        </Link>
+      </p>
     </div>
   );
 }
