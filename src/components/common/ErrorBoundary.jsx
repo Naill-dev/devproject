@@ -10,22 +10,27 @@ export default class ErrorBoundary extends React.Component {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error, errorInfo) {
-    console.error('ErrorBoundary caught:', error, errorInfo);
+  componentDidCatch(error, info) {
+    console.error('ErrorBoundary:', error, info);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-100">
-          <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md text-center">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">Oops! Bir xəta baş verdi</h2>
-            <p className="text-slate-600 mb-4">{this.state.error?.message || 'Bilinməyən xəta'}</p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="btn-primary"
+        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-950">
+          <div className="max-w-md w-full rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
+            <h2 className="text-2xl font-bold text-rose-400 mb-3">
+              Oops! Bir xəta baş verdi
+            </h2>
+            <p className="text-slate-400 mb-6 text-sm">
+              {this.state.error?.message || 'Bilinməyən xəta. Tətbiq çökmədi — Error Boundary tutdu.'}
+            </p>
+            <button
+              type="button"
+              className="px-4 py-2 rounded-xl bg-indigo-500 text-white font-medium"
+              onClick={() => window.location.assign('/')}
             >
-              Səhifəni yenilə
+              Ana səhifəyə qayıt
             </button>
           </div>
         </div>
