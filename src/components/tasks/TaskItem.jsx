@@ -1,11 +1,12 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useTasks } from '../../context/TaskContext';
 
 export default function TaskItem({ task }) {
   const { updateTask, deleteTask } = useTasks();
   const [editing, setEditing] = useState(false);
-  const [title, setTitle] = useState(task.title);
+  const [title, setTitle] = useState(task?.title || '');
+
+  if (!task) return null;
 
   const handleUpdate = async () => {
     await updateTask(task.id, { title });
