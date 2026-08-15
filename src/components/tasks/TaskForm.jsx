@@ -8,6 +8,7 @@ export default function TaskForm({ onClose }) {
     category: '',
     status: 'pending',
     priority: 'medium',
+    dueDate: '',
   });
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
@@ -30,8 +31,17 @@ export default function TaskForm({ onClose }) {
         category: formData.category.trim(),
         status: formData.status,
         priority: formData.priority,
+        dueDate: formData.dueDate
+          ? new Date(formData.dueDate).toISOString()
+          : null,
       });
-      setFormData({ title: '', category: '', status: 'pending', priority: 'medium' });
+      setFormData({
+        title: '',
+        category: '',
+        status: 'pending',
+        priority: 'medium',
+        dueDate: '',
+      });
       onClose?.();
     } finally {
       setSaving(false);
@@ -51,14 +61,18 @@ export default function TaskForm({ onClose }) {
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="Tapşırıq adı"
             />
-            {errors.title && <p className="text-rose-400 text-sm mt-1">{errors.title}</p>}
+            {errors.title && (
+              <p className="text-rose-400 text-sm mt-1">{errors.title}</p>
+            )}
           </div>
           <div>
             <label className="block text-sm text-slate-300 mb-1">Kateqoriya *</label>
             <input
               className="input-field"
               value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, category: e.target.value })
+              }
               placeholder="Dev, QA..."
             />
             {errors.category && (
@@ -70,7 +84,9 @@ export default function TaskForm({ onClose }) {
             <select
               className="input-field"
               value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, status: e.target.value })
+              }
             >
               <option value="pending">Gözləyən</option>
               <option value="in-progress">Davam edən</option>
@@ -82,12 +98,31 @@ export default function TaskForm({ onClose }) {
             <select
               className="input-field"
               value={formData.priority}
-              onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, priority: e.target.value })
+              }
             >
               <option value="low">Aşağı</option>
               <option value="medium">Orta</option>
               <option value="high">Yüksək</option>
             </select>
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm text-slate-300 mb-1">
+              Deadline{' '}
+              <span className="text-slate-500">(istəyə bağlı)</span>
+            </label>
+            <input
+              type="datetime-local"
+              className="input-field"
+              value={formData.dueDate}
+              onChange={(e) =>
+                setFormData({ ...formData, dueDate: e.target.value })
+              }
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              Boş buraxsan geri sayım olmaz
+            </p>
           </div>
         </div>
         <div className="flex gap-3">
