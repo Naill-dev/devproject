@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
       setUser(userData);
       return { success: true };
     }
-    throw new Error('Email və ya şifrə yanlışdır! (Demo: demo@tasksphere.com / Task2026!)');
+    throw new Error('Email və ya şifrə yanlışdır!');
   };
 
   const logout = () => {
