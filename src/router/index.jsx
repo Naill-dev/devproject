@@ -38,20 +38,9 @@ export const router = createBrowserRouter(
         },
       ],
     },
-    {
-      path: '/login',
-      element: <Login />,
-    },
-    {
-      path: '/register',
-      element: <Register />,
-    },
-    {
-      path: '*',
-      element: <Navigate to="/" replace />,
-    },
+    { path: '/login', element: <Login /> },
+    { path: '/register', element: <Register /> },
+    { path: '*', element: <Navigate to="/" replace /> },
   ],
-  {
-    basename: import.meta.env.BASE_URL, 
-  }
+  { basename: import.meta.env.BASE_URL }
 );
