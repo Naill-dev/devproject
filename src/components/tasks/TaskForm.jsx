@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTasks } from '../../context/TaskContext';
 
 export default function TaskForm({ onClose }) {
@@ -7,9 +7,10 @@ export default function TaskForm({ onClose }) {
     title: '',
     category: '',
     status: 'pending',
-    priority: 'medium'
+    priority: 'medium',
   });
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   const validate = () => {
     const err = {};
@@ -22,43 +23,54 @@ export default function TaskForm({ onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    await addTask(formData);
-    setFormData({ title: '', category: '', status: 'pending', priority: 'medium' });
-    onClose?.();
+    setSaving(true);
+    try {
+      await addTask({
+        title: formData.title.trim(),
+        category: formData.category.trim(),
+        status: formData.status,
+        priority: formData.priority,
+      });
+      setFormData({ title: '', category: '', status: 'pending', priority: 'medium' });
+      onClose?.();
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="card mb-6">
+    <div className="card p-5 border-indigo-400/20">
+      <h2 className="text-lg font-semibold text-white mb-4">Yeni tapşırıq</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Başlıq *</label>
+            <label className="block text-sm text-slate-300 mb-1">Başlıq *</label>
             <input
-              type="text"
+              className="input-field"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="input-field"
-              placeholder="Tapşırıq başlığı"
+              placeholder="Tapşırıq adı"
             />
-            {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+            {errors.title && <p className="text-rose-400 text-sm mt-1">{errors.title}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Kateqoriya *</label>
+            <label className="block text-sm text-slate-300 mb-1">Kateqoriya *</label>
             <input
-              type="text"
+              className="input-field"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="input-field"
-              placeholder="Məsələn: Dev, QA, Design"
+              placeholder="Dev, QA..."
             />
-            {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
+            {errors.category && (
+              <p className="text-rose-400 text-sm mt-1">{errors.category}</p>
+            )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+            <label className="block text-sm text-slate-300 mb-1">Status</label>
             <select
+              className="input-field"
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="input-field"
             >
               <option value="pending">Gözləyən</option>
               <option value="in-progress">Davam edən</option>
@@ -66,11 +78,11 @@ export default function TaskForm({ onClose }) {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Prioritet</label>
+            <label className="block text-sm text-slate-300 mb-1">Prioritet</label>
             <select
+              className="input-field"
               value={formData.priority}
               onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-              className="input-field"
             >
               <option value="low">Aşağı</option>
               <option value="medium">Orta</option>
@@ -79,8 +91,14 @@ export default function TaskForm({ onClose }) {
           </div>
         </div>
         <div className="flex gap-3">
-          <button type="submit" className="btn-primary">Əlavə et</button>
-          {onClose && <button type="button" onClick={onClose} className="btn-danger">Ləğv et</button>}
+          <button type="submit" className="btn-primary" disabled={saving}>
+            {saving ? 'Əlavə olunur...' : 'Əlavə et'}
+          </button>
+          {onClose && (
+            <button type="button" onClick={onClose} className="btn-ghost">
+              Ləğv et
+            </button>
+          )}
         </div>
       </form>
     </div>
