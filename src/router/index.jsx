@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import Layout from '../components/common/Layout';
 import Dashboard from '../pages/Dashboard';
 import Tasks from '../pages/Tasks';
 import Profile from '../pages/Profile';
@@ -8,16 +9,33 @@ import ProtectedRoute from '../components/common/ProtectedRoute';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
-  },
-  {
-    path: '/tasks',
-    element: <ProtectedRoute><Tasks /></ProtectedRoute>,
-  },
-  {
-    path: '/profile',
-    element: <ProtectedRoute><Profile /></ProtectedRoute>,
+    element: <Layout />,
+    children: [
+      {
+        path: '/',
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/tasks',
+        element: (
+          <ProtectedRoute>
+            <Tasks />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/profile',
+        element: (
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        ),
+      },
+    ],
   },
   {
     path: '/login',
