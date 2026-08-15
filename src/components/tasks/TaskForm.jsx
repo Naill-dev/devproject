@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useTasks } from '../../context/TaskContext';
 
 export default function TaskForm({ onClose }) {
@@ -81,7 +80,7 @@ export default function TaskForm({ onClose }) {
         </div>
         <div className="flex gap-3">
           <button type="submit" className="btn-primary">Əlavə et</button>
-          <button type="button" onClick={onClose} className="btn-danger">Ləğv et</button>
+          {onClose && <button type="button" onClick={onClose} className="btn-danger">Ləğv et</button>}
         </div>
       </form>
     </div>
