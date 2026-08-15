@@ -2,9 +2,30 @@ const STORAGE_KEY = 'tasksphere_tasks';
 const AUTH_KEY = 'auth_token';
 
 const initialTasks = [
-  { id: '1', title: 'Auth modulunu tamamlamaq', category: 'Dev', status: 'pending', priority: 'high' },
-  { id: '2', title: 'Global State qurmaq', category: 'Dev', status: 'in-progress', priority: 'high' },
-  { id: '3', title: 'Error Boundary əlavə etmək', category: 'QA', status: 'completed', priority: 'medium' },
+  {
+    id: '1',
+    title: 'Auth modulunu tamamlamaq',
+    category: 'Dev',
+    status: 'pending',
+    priority: 'high',
+    dueDate: null,
+  },
+  {
+    id: '2',
+    title: 'Global State qurmaq',
+    category: 'Dev',
+    status: 'in-progress',
+    priority: 'high',
+    dueDate: null,
+  },
+  {
+    id: '3',
+    title: 'Error Boundary əlavə etmək',
+    category: 'QA',
+    status: 'completed',
+    priority: 'medium',
+    dueDate: null,
+  },
 ];
 
 const delay = (ms = 400) => new Promise((r) => setTimeout(r, ms));
@@ -55,7 +76,11 @@ export const mockApi = {
     await delay(450);
     assertAuth();
     const tasks = getStored();
-    const newTask = { ...taskData, id: Date.now().toString() };
+    const newTask = {
+      dueDate: null,
+      ...taskData,
+      id: Date.now().toString(),
+    };
     tasks.push(newTask);
     saveTasks(tasks);
     return newTask;
