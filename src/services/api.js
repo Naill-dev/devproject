@@ -1,105 +1,63 @@
-const STORAGE_KEY = 'tasksphere_tasks';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const AUTH_KEY = 'auth_token';
-
-const initialTasks = [
-  {
-    id: '1',
-    title: 'Auth modulunu tamamlamaq',
-    category: 'Dev',
-    status: 'pending',
-    priority: 'high',
-    dueDate: null,
-  },
-  {
-    id: '2',
-    title: 'Global State qurmaq',
-    category: 'Dev',
-    status: 'in-progress',
-    priority: 'high',
-    dueDate: null,
-  },
-  {
-    id: '3',
-    title: 'Error Boundary əlavə etmək',
-    category: 'QA',
-    status: 'completed',
-    priority: 'medium',
-    dueDate: null,
-  },
-];
-
-const delay = (ms = 400) => new Promise((r) => setTimeout(r, ms));
-
-function getStored() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(initialTasks));
-      return [...initialTasks];
-    }
-    return JSON.parse(data);
-  } catch {
-    return [...initialTasks];
-  }
-}
-
-function saveTasks(tasks) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-}
+const EXPIRES_KEY = 'auth_expires';
 
 function assertAuth() {
-  const raw = localStorage.getItem(AUTH_KEY);
-  if (!raw) {
+  const token = localStorage.getItem(AUTH_KEY);
+  const exp = Number(localStorage.getItem(EXPIRES_KEY) || 0);
+  if (!token || !exp || Date.now() >= exp) {
     const err = new Error('Unauthorized');
     err.status = 401;
     throw err;
   }
-  try {
-    const payload = JSON.parse(atob(raw.split('.')[1] || ''));
-    if (payload.exp && Date.now() >= payload.exp) {
-      const err = new Error('Token expired');
-      err.status = 401;
-      throw err;
-    }
-  } catch (e) {
-    if (e.status === 401) throw e;
+}
+
+async function request(path, options = {}) {
+  assertAuth();
+
+  const res = await fetch(`${BASE_URL}${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+
+  if (res.status === 401) {
+    const err = new Error('Unauthorized');
+    err.status = 401;
+    throw err;
   }
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(text || `Request failed (${res.status})`);
+  }
+
+  if (res.status === 204) return null;
+  return res.json();
 }
 
 export const mockApi = {
-  getTasks: async () => {
-    await delay(350);
-    assertAuth();
-    return getStored();
-  },
-  createTask: async (taskData) => {
-    await delay(450);
-    assertAuth();
-    const tasks = getStored();
-    const newTask = {
-      dueDate: null,
-      ...taskData,
-      id: Date.now().toString(),
-    };
-    tasks.push(newTask);
-    saveTasks(tasks);
-    return newTask;
-  },
-  updateTask: async (id, updatedFields) => {
-    await delay(350);
-    assertAuth();
-    const tasks = getStored();
-    const index = tasks.findIndex((t) => t.id === id);
-    if (index === -1) throw new Error('Task tapılmadı');
-    tasks[index] = { ...tasks[index], ...updatedFields };
-    saveTasks(tasks);
-    return tasks[index];
-  },
+  getTasks: () => request('/tasks'),
+
+  createTask: (taskData) =>
+    request('/tasks', {
+      method: 'POST',
+      body: JSON.stringify({
+        dueDate: null,
+        ...taskData,
+      }),
+    }),
+
+  updateTask: (id, updatedFields) =>
+    request(`/tasks/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updatedFields),
+    }),
+
   deleteTask: async (id) => {
-    await delay(350);
-    assertAuth();
-    const tasks = getStored().filter((t) => t.id !== id);
-    saveTasks(tasks);
+    await request(`/tasks/${id}`, { method: 'DELETE' });
     return { success: true, id };
   },
 };
