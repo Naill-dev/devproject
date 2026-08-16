@@ -1,34 +1,8 @@
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const AUTH_KEY = 'auth_token';
 const EXPIRES_KEY = 'auth_expires';
-const STORAGE_KEY = 'tasksphere_tasks';
-
-const initialTasks = [
-  {
-    id: '1',
-    title: 'Auth modulunu tamamlamaq',
-    category: 'Dev',
-    status: 'pending',
-    priority: 'high',
-    dueDate: null,
-  },
-  {
-    id: '2',
-    title: 'Global State qurmaq',
-    category: 'Dev',
-    status: 'in-progress',
-    priority: 'high',
-    dueDate: null,
-  },
-  {
-    id: '3',
-    title: 'Error Boundary əlavə etmək',
-    category: 'QA',
-    status: 'completed',
-    priority: 'medium',
-    dueDate: null,
-  },
-];
+const USER_KEY = 'auth_user';
+const STORAGE_PREFIX = 'tasksphere_tasks_';
 
 const delay = (ms = 300) => new Promise((r) => setTimeout(r, ms));
 
@@ -42,21 +16,43 @@ function assertAuth() {
   }
 }
 
-function getLocal() {
+function getUserId() {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(USER_KEY);
+    if (!raw) return null;
+    const u = JSON.parse(raw);
+    return u?.id || u?.email || null;
+  } catch {
+    return null;
+  }
+}
+
+function storageKey() {
+  const uid = getUserId();
+  if (!uid) {
+    const err = new Error('Unauthorized');
+    err.status = 401;
+    throw err;
+  }
+  return `${STORAGE_PREFIX}${uid}`;
+}
+
+function getLocal() {
+  const key = storageKey();
+  try {
+    const data = localStorage.getItem(key);
     if (!data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(initialTasks));
-      return [...initialTasks];
+      localStorage.setItem(key, JSON.stringify([]));
+      return [];
     }
     return JSON.parse(data);
   } catch {
-    return [...initialTasks];
+    return [];
   }
 }
 
 function saveLocal(tasks) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  localStorage.setItem(storageKey(), JSON.stringify(tasks));
 }
 
 function shouldTryHttp() {
@@ -73,10 +69,7 @@ async function httpRequest(path, options = {}) {
     },
     ...options,
   });
-
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}`);
-  }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   if (res.status === 204) return null;
   return res.json();
 }
@@ -93,6 +86,7 @@ const localApi = {
       dueDate: null,
       ...taskData,
       id: Date.now().toString(),
+      userId: getUserId(),
     };
     tasks.push(newTask);
     saveLocal(tasks);
@@ -116,11 +110,9 @@ const localApi = {
 
 async function run(httpFn, localFn) {
   assertAuth();
-
   if (!shouldTryHttp()) {
     return localFn();
   }
-
   try {
     return await httpFn();
   } catch {
@@ -140,7 +132,11 @@ export const mockApi = {
       () =>
         httpRequest('/tasks', {
           method: 'POST',
-          body: JSON.stringify({ dueDate: null, ...taskData }),
+          body: JSON.stringify({
+            dueDate: null,
+            ...taskData,
+            userId: getUserId(),
+          }),
         }),
       () => localApi.createTask(taskData)
     ),
