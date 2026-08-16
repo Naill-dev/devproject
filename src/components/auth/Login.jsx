@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
@@ -9,18 +9,20 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || '/';
 
+  // Declarative redirect (Anti-pattern yoxdur)
   if (isAuthenticated) {
-    navigate(from, { replace: true });
+    return <Navigate to={from} replace />;
   }
 
   const validate = () => {
     const e = {};
     if (!email.trim()) e.email = 'Email tələb olunur';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Email formatı yanlışdır';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      e.email = 'Email formatı yanlışdır';
+    }
     if (!password) e.password = 'Şifrə tələb olunur';
     else if (password.length < 6) e.password = 'Şifrə minimum 6 simvol';
     setErrors(e);
@@ -34,7 +36,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email.trim(), password);
-      navigate(from, { replace: true });
+      // login uğurlu olduqda isAuthenticated true olur və yuxarıdakı <Navigate /> işləyir
     } catch (err) {
       setError(err.message || 'Giriş uğursuz oldu');
     } finally {
@@ -65,7 +67,10 @@ export default function Login() {
               type="email"
               className="input-field"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
+              }}
               autoComplete="username"
             />
             {errors.email && (
@@ -79,7 +84,12 @@ export default function Login() {
               type="password"
               className="input-field"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errors.password) {
+                  setErrors((prev) => ({ ...prev, password: '' }));
+                }
+              }}
               autoComplete="current-password"
             />
             {errors.password && (
