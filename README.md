@@ -66,16 +66,34 @@ npm run dev
 Open your browser and navigate to http://localhost:5173.
 
 📂 Project Structure
-Plaintext
 src/
-├── components/     # Reusable UI elements, modals, forms & layouts
-│   ├── auth/       # Login & Register components
-│   └── common/     # ProtectedRoute, Layout, Navbar, etc.
-├── context/        # AuthContext & TaskContext providers
-├── pages/          # Page components (Dashboard, Tasks, Profile, NotFound)
-├── router/         # React Router configurations
-├── services/       # API call handlers & localStorage fallbacks
-└── styles/         # Global styles & Tailwind CSS configuration
+├── main.jsx
+├── App.jsx
+├── index.css
+├── router/
+│   └── index.jsx
+├── context/
+│   ├── AuthContext.jsx
+│   └── TaskContext.jsx
+├── services/
+│   └── api.js
+├── pages/
+│   ├── Dashboard.jsx
+│   ├── Tasks.jsx
+│   ├── Profile.jsx
+│   └── NotFound.jsx
+└── components/
+    ├── auth/
+    │   ├── Login.jsx
+    │   └── Register.jsx
+    ├── tasks/
+    │   ├── TaskForm.jsx
+    │   └── TaskItem.jsx
+    └── common/
+        ├── Layout.jsx
+        ├── Navbar.jsx
+        ├── ProtectedRoute.jsx
+        └── ErrorBoundary.jsx
 📝 Scripts
 npm run dev — Starts Vite dev server.
 
