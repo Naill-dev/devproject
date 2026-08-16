@@ -103,5 +103,13 @@ npm run preview — Previews the production build locally.
 
 npm run server — Runs json-server for mock backend integration.
 
+---
+
+## 👤 Author
+
+**Nail Mammadov**
+
+- **GitHub:** [@Naill-dev](https://github.com/Naill-dev)
+
 📄 License
 This project is licensed under the MIT License.
