@@ -59,6 +59,12 @@ function saveLocal(tasks) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 }
 
+function shouldTryHttp() {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1';
+}
+
 async function httpRequest(path, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: {
@@ -68,16 +74,9 @@ async function httpRequest(path, options = {}) {
     ...options,
   });
 
-  if (res.status === 401) {
-    const err = new Error('Unauthorized');
-    err.status = 401;
-    throw err;
-  }
-
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
   }
-
   if (res.status === 204) return null;
   return res.json();
 }
@@ -115,25 +114,29 @@ const localApi = {
   },
 };
 
-async function withFallback(httpFn, localFn) {
+async function run(httpFn, localFn) {
   assertAuth();
+
+  if (!shouldTryHttp()) {
+    return localFn();
+  }
+
   try {
     return await httpFn();
-  } catch (err) {
-    if (err.status === 401) throw err;
+  } catch {
     return localFn();
   }
 }
 
 export const mockApi = {
   getTasks: () =>
-    withFallback(
+    run(
       () => httpRequest('/tasks'),
       () => localApi.getTasks()
     ),
 
   createTask: (taskData) =>
-    withFallback(
+    run(
       () =>
         httpRequest('/tasks', {
           method: 'POST',
@@ -142,18 +145,18 @@ export const mockApi = {
       () => localApi.createTask(taskData)
     ),
 
-  updateTask: (id, updatedFields) =>
-    withFallback(
+  updateTask: (id, data) =>
+    run(
       () =>
         httpRequest(`/tasks/${id}`, {
           method: 'PATCH',
-          body: JSON.stringify(updatedFields),
+          body: JSON.stringify(data),
         }),
-      () => localApi.updateTask(id, updatedFields)
+      () => localApi.updateTask(id, data)
     ),
 
   deleteTask: (id) =>
-    withFallback(
+    run(
       async () => {
         await httpRequest(`/tasks/${id}`, { method: 'DELETE' });
         return { success: true, id };
