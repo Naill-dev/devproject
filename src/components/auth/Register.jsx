@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Register() {
@@ -10,30 +10,53 @@ export default function Register() {
     confirmPassword: '',
   });
   const [errors, setErrors] = useState({});
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { register, isAuthenticated } = useAuth();
+
+  // Declarative redirect
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  const setField = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: '' }));
+  };
 
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = 'Ad tələb olunur';
     if (!form.email.trim()) e.email = 'Email tələb olunur';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email formatı yanlışdır';
-    if (!form.password || form.password.length < 6) e.password = 'Minimum 6 simvol';
-    if (form.password !== form.confirmPassword) e.confirmPassword = 'Şifrələr eyni deyil';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      e.email = 'Email formatı yanlışdır';
+    }
+    if (!form.password || form.password.length < 6) {
+      e.password = 'Minimum 6 simvol';
+    }
+    if (form.password !== form.confirmPassword) {
+      e.confirmPassword = 'Şifrələr eyni deyil';
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
   const handleSubmit = async (ev) => {
     ev.preventDefault();
+    setError('');
     if (!validate()) return;
+    setLoading(true);
     try {
-      await login(form.email, form.password);
-      navigate('/');
-    } catch {
-      setErrors({
-        form: 'Qeydiyyat demo rejimindədir. Mövcud demo hesabla daxil olun.',
+      await register({
+        name: form.name,
+        email: form.email,
+        password: form.password,
       });
+      // register tamamlandıqdan sonra isAuthenticated true olur və <Navigate /> avtomatik yönləndirir
+    } catch (err) {
+      setError(err.message || 'Qeydiyyat uğursuz oldu');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,9 +67,9 @@ export default function Register() {
           Qeydiyyat
         </h1>
 
-        {errors.form && (
-          <p className="text-amber-300 text-sm mb-3 bg-amber-500/10 p-3 rounded-xl">
-            {errors.form}
+        {error && (
+          <p className="text-rose-300 text-sm mb-3 bg-rose-500/10 border border-rose-500/30 p-3 rounded-xl">
+            {error}
           </p>
         )}
 
@@ -63,15 +86,15 @@ export default function Register() {
                 type={f.type}
                 className="input-field"
                 value={form[f.key]}
-                onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
+                onChange={(e) => setField(f.key, e.target.value)}
               />
               {errors[f.key] && (
                 <p className="text-rose-400 text-sm mt-1">{errors[f.key]}</p>
               )}
             </div>
           ))}
-          <button type="submit" className="btn-primary w-full">
-            Qeydiyyat
+          <button type="submit" className="btn-primary w-full" disabled={loading}>
+            {loading ? 'Yaradılır...' : 'Qeydiyyat'}
           </button>
         </form>
 
