@@ -1,120 +1,89 @@
-```md
-# TaskSphere
+# ⚡ TaskSphere
 
-A modern task management web app built with React. Create, update, and organize tasks with an optional deadline countdown, drag-and-drop status board, and mock authentication.
+> A modern, responsive task management application built with **React 18** and **Tailwind CSS**. Features drag-and-drop workflow management, mock JWT authentication, live countdown timers, and optimistic UI updates.
 
-**Live demo:** [https://devproject-five.vercel.app](https://devproject-five.vercel.app)
+![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green.style=for-the-badge)
 
----
-
-## Features
-
-- Mock authentication (login / logout) with session persistence
-- Protected routes — unauthenticated users are redirected to login
-- Task board with three columns: Pending, In Progress, Completed
-- Drag and drop to change task status
-- Create, edit, and delete tasks
-- Optional deadline with live countdown and overdue state
-- Form validation on auth and task forms
-- Optimistic UI updates with rollback on failure
-- Profile page with avatar initials or custom photo
-- Responsive dark UI with Tailwind CSS
+🔗 **Live Demo:** [devproject-five.vercel.app](https://devproject-five.vercel.app)
 
 ---
 
-## Tech Stack
+## ✨ Features
 
-- React 18
-- Vite
-- React Router v6
-- Context API + useReducer
-- Tailwind CSS
-- localStorage (mock data & session)
+- 🔐 **Authentication & Session:** Mock JWT-based Login and Register flow, local persistence, auto token expiration (1-hour TTL), and silent session cleanup.
+- 🛡️ **Protected Routing:** Declarative route guards redirecting unauthorized guests safely.
+- 📋 **Kanban Task Board:** Organize tasks visually under `Pending`, `In Progress`, and `Completed` columns.
+- 🖐️ **Drag and Drop:** Effortlessly move tasks between status columns.
+- ⏳ **Deadline & Countdowns:** Real-time countdowns for task deadlines with visual alerts for overdue tasks.
+- ⚡ **Optimistic UI Updates:** Instant UI feedback on task modifications with automatic rollback on network failure.
+- 👤 **Per-User Isolation:** Data is strictly scoped per user account.
+- 🎨 **Profile Management:** Avatar support with default initials or custom profile image updates.
+- 🌙 **Modern Dark Theme:** Styled using Tailwind CSS with mobile-first responsive layout.
 
 ---
 
-## Getting Started
+## 🛠️ Tech Stack
 
-```bash
-git clone https://github.com/Naill-dev/devproject.git
-cd devproject
+- **Frontend Core:** React 18, Vite
+- **Routing:** React Router v6 (Data Routers & Declarative `<Navigate />`)
+- **State Management:** React Context API + `useReducer`
+- **Styling:** Tailwind CSS
+- **Data & Storage:** `json-server` (Mock HTTP REST API) & `localStorage` fallback
+
+---
+
+## 🚀 Getting Started
+
+Follow these steps to run the project locally on your machine.
+
+### Prerequisites
+
+Ensure you have the following installed:
+- **Node.js** (v18.0.0 or higher)
+- **npm** or **yarn**
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/Naill-dev/devproject.git](https://github.com/Naill-dev/devproject.git)
+   cd devproject
+Install dependencies:
+
+Bash
 npm install
+Start the Mock API server (Optional if using localStorage fallback):
+
+Bash
+npm run server
+Launch the development server:
+
+Bash
 npm run dev
-```
+Open your browser and navigate to http://localhost:5173.
 
-Open [http://localhost:5173](http://localhost:5173).
-
-### Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Production build |
-| `npm run preview` | Preview production build |
-
----
-
-## Demo Account
-
-| Field | Value |
-|-------|--------|
-| Email | `demo@tasksphere.com` |
-| Password | `Task2026!` |
-
-This is a mock login for local/demo use only. There is no real backend.
-
----
-
-## Project Structure
-
-```text
+📂 Project Structure
+Plaintext
 src/
-├── main.jsx
-├── App.jsx
-├── index.css
-├── router/
-│   └── index.jsx
-├── context/
-│   ├── AuthContext.jsx
-│   └── TaskContext.jsx
-├── services/
-│   └── api.js
-├── pages/
-│   ├── Dashboard.jsx
-│   ├── Tasks.jsx
-│   └── Profile.jsx
-└── components/
-    ├── auth/
-    │   ├── Login.jsx
-    │   └── Register.jsx
-    ├── tasks/
-    │   ├── TaskForm.jsx
-    │   └── TaskItem.jsx
-    └── common/
-        ├── Layout.jsx
-        ├── Navbar.jsx
-        ├── ProtectedRoute.jsx
-        └── ErrorBoundary.jsx
-```
+├── components/     # Reusable UI elements, modals, forms & layouts
+│   ├── auth/       # Login & Register components
+│   └── common/     # ProtectedRoute, Layout, Navbar, etc.
+├── context/        # AuthContext & TaskContext providers
+├── pages/          # Page components (Dashboard, Tasks, Profile, NotFound)
+├── router/         # React Router configurations
+├── services/       # API call handlers & localStorage fallbacks
+└── styles/         # Global styles & Tailwind CSS configuration
+📝 Scripts
+npm run dev — Starts Vite dev server.
 
----
+npm run build — Builds production-ready static assets.
 
-## How It Works
+npm run preview — Previews the production build locally.
 
-- **Auth:** Credentials are checked against a mock user. A token and expiry time are stored in `localStorage`. On refresh, the session is restored if it is still valid.
-- **Tasks:** Data is stored in `localStorage` via a small mock API layer with artificial delay. The UI updates optimistically; failed requests roll back state.
-- **Deadlines:** Optional. If set, a countdown runs on the task card. When time is up, the card shows an overdue state.
+npm run server — Runs json-server for mock backend integration.
 
----
-
-## Author
-
-**Nail Mammadov**  
-GitHub: [Naill-dev](https://github.com/Naill-dev)
-
----
-
-## License
-
-MIT
-```
+📄 License
+This project is licensed under the MIT License.
