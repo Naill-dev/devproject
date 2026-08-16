@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useCallback,
+} from 'react';
 import { mockApi } from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -34,6 +40,8 @@ function taskReducer(state, action) {
       };
     case 'ROLLBACK':
       return { ...state, tasks: action.payload };
+    case 'CLEAR':
+      return { ...initialState, loading: false };
     default:
       return state;
   }
@@ -41,7 +49,7 @@ function taskReducer(state, action) {
 
 export function TaskProvider({ children }) {
   const [state, dispatch] = useReducer(taskReducer, initialState);
-  const { isAuthenticated, handleUnauthorized } = useAuth();
+  const { isAuthenticated, handleUnauthorized, user } = useAuth();
 
   const handleApiError = useCallback(
     (err) => {
@@ -55,8 +63,8 @@ export function TaskProvider({ children }) {
   );
 
   const fetchTasks = useCallback(async () => {
-    if (!isAuthenticated) {
-      dispatch({ type: 'FETCH_SUCCESS', payload: [] });
+    if (!isAuthenticated || !user?.id) {
+      dispatch({ type: 'CLEAR' });
       return;
     }
     dispatch({ type: 'FETCH_START' });
@@ -66,7 +74,7 @@ export function TaskProvider({ children }) {
     } catch (err) {
       handleApiError(err);
     }
-  }, [isAuthenticated, handleApiError]);
+  }, [isAuthenticated, user?.id, handleApiError]);
 
   useEffect(() => {
     fetchTasks();
